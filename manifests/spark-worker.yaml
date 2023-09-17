@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-worker-dep
+  namespace: spark-ns
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: spark-worker
+  template:
+    metadata:
+      labels:
+        app: spark-worker
+
+    spec:
+
+      volumes:
+      - name: spark-worker-volume
+        persistentVolumeClaim:
+          claimName: spark-pvc
+
+      containers:
+      - name: spark-worker
+        image: apache/spark:latest
+        env:
+        - name: SPARK_WORKER_CORES
+          value: "1"
+        - name: SPARK_WORKER_MEMORY
+          value: "1G"
+        - name: SPARK_EXECUTOR_MEMORY
+          value: "1G"
+        - name: SPARK_WORKLOAD
+          value: "worker"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: spark-worker-volume
+          mountPath: /opt/spark/work-dir/shared-spark
+        command:
+        - "sh"
+        - "-c"
+        - |
+          export $(cat /opt/spark/work-dir/shared-spark/my-spark-config) &&
+          exec /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://$SPARK_MASTER:7077 --webui-port 8080
+      restartPolicy: Always

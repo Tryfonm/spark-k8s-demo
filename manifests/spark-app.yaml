@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-app-dep
+  namespace: spark-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-app
+  template:
+    metadata:
+      labels:
+        app: spark-app
+
+    spec:
+
+      volumes:
+      - name: spark-app-volume
+        persistentVolumeClaim:
+          claimName: spark-pvc
+
+      containers:
+      - name: spark-app
+        image: apache/spark:latest
+        volumeMounts:
+        - name: spark-app-volume
+          mountPath: /opt/spark/work-dir/shared-spark
+        command:
+        - "sh"
+        - "-c"
+        - |
+          export $(cat /opt/spark/work-dir/shared-spark/my-spark-config) && sleep infinity
+          # exec /opt/spark/bin/spark-submit /opt/spark/examples/src/main/python/status_api_demo.py          
+          # --master spark://$SPARK_MASTER:7077

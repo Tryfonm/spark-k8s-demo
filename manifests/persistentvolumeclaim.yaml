@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spark-pvc
+  namespace: spark-ns
+spec:
+  storageClassName: manual
+  accessModes:
+  - ReadWriteOnce
+  volumeName: spark-pv
+  resources:
+    requests:
+      storage: 1Gi
