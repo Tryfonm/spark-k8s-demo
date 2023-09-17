@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SPARK_APP_POD=$(kubectl get pod --no-headers | grep spark-master | awk '{print $1}')
+SPARK_APP_POD=$(kubectl get pod --no-headers | grep spark-app | awk '{print $1}')
 
 # Example running status_api_demo.py provided by spark
 kubectl exec -it $SPARK_APP_POD -- sh -c \
