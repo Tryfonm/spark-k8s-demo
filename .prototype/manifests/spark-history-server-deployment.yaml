@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-history-server-dep
+  namespace: spark-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-history-server
+  template:
+    metadata:
+      labels:
+        app: spark-history-server
+
+    spec:
+      volumes:
+      - name: spark-history-server-volume
+        persistentVolumeClaim:
+          claimName: spark-logs-pvc
+
+      containers:
+      - name: spark-history-server
+        image: tryfonm/spark-node
+        ports:
+        - containerPort: 18080
+        volumeMounts:
+        - name: spark-history-server-volume
+          mountPath: /opt/spark/event-logs
+        command: ["sleep", "infinity"]

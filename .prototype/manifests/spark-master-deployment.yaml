@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master-dep
+  namespace: spark-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-master
+  template:
+    metadata:
+      labels:
+        app: spark-master
+
+    spec:
+      volumes:
+      - name: spark-master-volume
+        persistentVolumeClaim:
+          claimName: spark-pvc
+
+      containers:
+      - name: spark-master
+        image: tryfonm/spark-node
+        env:
+        - name: SPARK_WORKLOAD
+          value: master
+        ports:
+        - containerPort: 7077
+        - containerPort: 8080 # Maybe delete
+        volumeMounts:
+        - name: spark-master-volume
+          mountPath: /shared
+        command: [ "sleep",  "infinity"]
+        # - "sh"
+        # - "-c"
+        # - |
+          # rm -rf /shared/.config && 
+          # echo SPARK_MASTER_IP=$(hostname -i) > /shared/.config &&
+          # export $(cat /shared/.config) &&
+          # echo SPARK_MASTER=spark://$SPARK_MASTER_IP:7077 >> /shared/.config &&
+          # export $(cat /shared/.config) &&
+          # /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+          # --ip $SPARK_MASTER_IP \
+          # --port 7077 \
+          # --webui-port 8080
+
+      restartPolicy: Always

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-app-dep
+  namespace: spark-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-app
+  template:
+    metadata:
+      labels:
+        app: spark-app
+
+    spec:
+      volumes:
+      - name: spark-app-volume
+        persistentVolumeClaim:
+          claimName: spark-pvc
+      - name: spark-app-logs-volume
+        persistentVolumeClaim:
+          claimName: spark-logs-pvc
+
+      containers:
+      - name: spark-app
+        image: tryfonm/spark-node
+        env:
+        - name: SPARK_WORKLOAD
+          value: submit
+        volumeMounts:
+        - name: spark-app-volume
+          mountPath: /shared
+        - name: spark-app-logs-volume
+          mountPath: /opt/spark/event-logs
+        command: ["sleep" , "infinity"]
+        # - "sh"
+        # - "-c"
+        # - |
+        #   sleep 30 && 
+        #   export $(cat /shared/.config) &&
+        #   /opt/spark/bin/spark-submit \
+        #    --master $SPARK_MASTER \
+        #    --conf spark.eventLog.enabled=true \
+        #    --conf spark.eventLog.dir=/opt/spark/event-logs/ \
+        #    /opt/spark/examples/src/main/python/status_api_demo.py
+

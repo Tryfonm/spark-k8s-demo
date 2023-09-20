@@ -1,9 +1,25 @@
-apiVersion: apps/v1
-kind: Deployment
+
+apiVersion: v1 # Includes the Service for lazyness
+kind: Service
 metadata:
-  name: spark-master-dep
+  name: spark-master-svc
+  labels:
+    app: spark-master-app
+spec:
+  ports:
+  - port: 7077
+    name: spark-master-port
+  clusterIP: None
+  selector:
+    app: spark-master
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: spark-master-ss
   namespace: spark-ns
 spec:
+  serviceName: spark-master-svc
   replicas: 1
   selector:
     matchLabels:
@@ -12,35 +28,30 @@ spec:
     metadata:
       labels:
         app: spark-master
-
     spec:
-
       volumes:
       - name: spark-master-volume
         persistentVolumeClaim:
           claimName: spark-pvc
-
       containers:
       - name: spark-master
-        image: apache/spark:latest
+        image: tryfonm/spark-node
         env:
         - name: SPARK_WORKLOAD
-          value: "master"
+          value: master
         ports:
-        - containerPort: 8080
         - containerPort: 7077
-        - containerPort: 4040
+        - containerPort: 8080 # Maybe delete
         volumeMounts:
         - name: spark-master-volume
-          mountPath: /opt/spark/work-dir/shared-spark
-        command:
-        - "sh"
-        - "-c"
-        - |
-          echo SPARK_MASTER=$(hostname -i) >> /opt/spark/work-dir/shared-spark/my-spark-config &&
-          export SPARK_MASTER=$(hostname -i) &&
-          exec /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
-          --ip $SPARK_MASTER
-          --port 7077
-          --webui-port 8080 &&
-      restartPolicy: Always
+          mountPath: /shared
+        command: 
+          - "sh"
+          - "-c"
+          - |
+            rm -rf /shared/.config && 
+            echo SPARK_MASTER=spark://$(hostname -i):7077 >> /shared/.config &&
+            /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+            --ip spark-master-svc \
+            --port 7077 \
+            --webui-port 8080

@@ -1,0 +1,51 @@
+
+apiVersion: v1 # Includes the Service for lazyness
+kind: Service
+metadata:
+  name: spark-driver-svc
+  namespace: spark-ns
+  labels:
+    app: spark-driver-app
+spec:
+  clusterIP: None
+  selector:
+    app: spark-driver
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: spark-driver-ss
+  namespace: spark-ns
+spec:
+  serviceName: spark-driver-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-driver
+  template:
+    metadata:
+      labels:
+        app: spark-driver
+    spec:
+      volumes:
+      - name: spark-driver-volume
+        persistentVolumeClaim:
+          claimName: spark-pvc
+      - name: spark-driver-logs-volume
+        persistentVolumeClaim:
+          claimName: spark-logs-pvc
+      containers:
+      - name: spark-driver
+        image: tryfonm/spark-node
+        env:
+        - name: SPARK_WORKLOAD
+          value: submit
+        ports:
+        - containerPort: 7076
+        volumeMounts:
+        - name: spark-driver-volume
+          mountPath: /shared
+        - name: spark-driver-logs-volume
+          mountPath: /opt/spark/event-logs
+        command: ["sleep", "infinity"]
+      restartPolicy: Always

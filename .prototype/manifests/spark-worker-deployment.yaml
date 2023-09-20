@@ -1,24 +1,10 @@
-
-apiVersion: v1 # Includes the Service for lazyness
-kind: Service
-metadata:
-  name: spark-worker-svc
-  namespace: spark-ns
-  labels:
-    app: spark-worker-app
-spec:
-  clusterIP: None
-  selector:
-    app: spark-worker
----
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: spark-worker-ss
+  name: spark-worker-dep
   namespace: spark-ns
 spec:
-  serviceName: spark-worker-svc
-  replicas: 4
+  replicas: 3
   selector:
     matchLabels:
       app: spark-worker
@@ -26,15 +12,13 @@ spec:
     metadata:
       labels:
         app: spark-worker
+
     spec:
-      initContainers:
-        - name: wait-for-master
-          image: busybox
-          command: ['sh', '-c', 'until ping -c 1 spark-master-svc; do sleep 1; done']
       volumes:
       - name: spark-worker-volume
         persistentVolumeClaim:
           claimName: spark-pvc
+
       containers:
       - name: spark-worker
         image: tryfonm/spark-node
@@ -50,14 +34,16 @@ spec:
         - name: SPARK_EXECUTOR_MEMORY
           value: 1G
         ports:
-        - containerPort: 7078
-        - containerPort: 8080 # Maybe delete
+        - containerPort: 8080
         volumeMounts:
         - name: spark-worker-volume
           mountPath: /shared
-        command:
-        - "sh"
-        - "-c"
-        - |
-          /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker \
-          spark-master-svc:7077
+        command: ["sleep", "infinity"]
+        # - "sh"
+        # - "-c"
+        # - |
+        #   export $(cat /shared/.config) &&
+        #   /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker \
+        #   $SPARK_MASTER
+
+      restartPolicy: Always
