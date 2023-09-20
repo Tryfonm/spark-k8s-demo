@@ -1,1 +1,1 @@
-## Ignore this folder | Just testing things out here
+Ignore this folder
