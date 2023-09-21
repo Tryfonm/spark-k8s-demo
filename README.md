@@ -13,7 +13,7 @@ Run the deployment script to create the Kubernetes cluster and Spark components:
 ./deploy
 ```
 The deployment script sets up a master, a specified number of worker nodes (you can adjust this in manifests/spark-worker.yaml by changing the replica value), and the Spark driver.
-Logging is enabled and the logs are stored on k3d's agent-0 under `/tmp/kube/spark-event-logs` and mapped on a persistentvolume that is mounted under `/opt/spark/event-logs` for both the `driver`, that stores them and the spark-history-server, that parses the folder; the UI spark-history-server is exposed using cluster-ip as a service and an ingress, and can be accessed through `localhost:8081`
+Logging is enabled and the logs are stored on k3d's agent-0 under `/tmp/kube/spark-event-logs` and mapped on a persistentvolume that is mounted under `/opt/spark/event-logs` for both the `driver`, that stores them and the `spark-history-server`, that parses the folder; the UI spark-history-server is exposed using cluster-ip as a service and an ingress, and can be accessed through `localhost:8081`
 Use the provided submit-example-job.sh script to run an existing example provided by the Apache Spark project:
 ```
 ./submit-example-job.sh
