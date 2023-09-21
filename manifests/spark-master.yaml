@@ -44,7 +44,7 @@ spec:
         volumeMounts:
         - name: spark-master-volume
           mountPath: /shared
-        command: 
+        command:
           - "sh"
           - "-c"
           - |

@@ -48,4 +48,3 @@ spec:
         - name: spark-driver-logs-volume
           mountPath: /opt/spark/event-logs
         command: ["sleep", "infinity"]
-      restartPolicy: Always

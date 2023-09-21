@@ -56,4 +56,8 @@ spec:
         volumeMounts:
         - name: spark-history-server-volume
           mountPath: /opt/spark/event-logs
-        command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.history.HistoryServer"]
+        command:
+        - "sh"
+        - "-c"
+        - |
+          /opt/spark/bin/spark-class org.apache.spark.deploy.history.HistoryServer

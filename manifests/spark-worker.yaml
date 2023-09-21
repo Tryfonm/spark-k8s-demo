@@ -28,9 +28,9 @@ spec:
         app: spark-worker
     spec:
       initContainers:
-        - name: wait-for-master
-          image: busybox
-          command: ['sh', '-c', 'until ping -c 1 spark-master-svc; do sleep 1; done']
+      - name: wait-for-master
+        image: busybox
+        command: ['sh', '-c', 'until ping -c 1 spark-master-svc; do sleep 1; done']
       volumes:
       - name: spark-worker-volume
         persistentVolumeClaim:
@@ -44,8 +44,8 @@ spec:
         envFrom:
         - configMapRef:
             name: spark-worker-config
-        # ports:
-        # - containerPort: 7078
+        ports:
+        - containerPort: 7078
         volumeMounts:
         - name: spark-worker-volume
           mountPath: /shared
