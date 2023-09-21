@@ -41,17 +41,11 @@ spec:
         env:
         - name: SPARK_WORKLOAD
           value: worker
-        - name: SPARK_WORKER_CORES
-          value: '1'
-        - name: SPARK_WORKER_MEMORY
-          value: 1G
-        - name: SPARK_DRIVER_MEMORY
-          value: 1G
-        - name: SPARK_EXECUTOR_MEMORY
-          value: 1G
-        ports:
-        - containerPort: 7078
-        - containerPort: 8080 # Maybe delete
+        envFrom:
+        - configMapRef:
+            name: spark-worker-config
+        # ports:
+        # - containerPort: 7078
         volumeMounts:
         - name: spark-worker-volume
           mountPath: /shared

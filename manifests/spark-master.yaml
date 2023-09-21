@@ -41,7 +41,6 @@ spec:
           value: master
         ports:
         - containerPort: 7077
-        - containerPort: 8080 # Maybe delete
         volumeMounts:
         - name: spark-master-volume
           mountPath: /shared

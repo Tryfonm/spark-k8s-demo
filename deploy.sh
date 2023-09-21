@@ -9,6 +9,7 @@ docker exec k3d-k3s-default-agent-0 chmod 777 /tmp/kube/spark-event-logs
 # -------------------------------------------------------- #
 
 kubectl apply -f manifests/namespace.yaml
+kubectl apply -f manifests/configmap.yaml
 kubectl apply -f manifests/persistentvolume.yaml
 kubectl apply -f manifests/persistentvolumeclaim.yaml
 
@@ -19,18 +20,18 @@ kubectl apply -f manifests/spark-driver.yaml
 
 # -------------------------------------------------------- #
 
-## (Optional) Add prometheus/grafana/loki for logging
-# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-# helm repo add stable https://charts.helm.sh/stable
-# kubectl create namespace prometheus
-# helm install prometheus-community/kube-prometheus-stack --generate-name --namespace prometheus
+# (Optional) Add prometheus/grafana/loki for logging
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add stable https://charts.helm.sh/stable
+kubectl create namespace prometheus
+helm install prometheus-community/kube-prometheus-stack --generate-name --namespace prometheus
 
-# helm repo add grafana https://grafana.github.io/helm-charts
-# helm repo update
-# kubectl create namespace loki-stack
-# helm upgrade --install loki --namespace=loki-stack grafana/loki-stack
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+kubectl create namespace loki-stack
+helm upgrade --install loki --namespace=loki-stack grafana/loki-stack
 
-## After grafana is running: run the following:
-# prometheus_pod=$(kpod  -n prometheus --no-headers | grep grafana | awk '{print $1}')
-# kubectl -n prometheus port-forward $prometheus_pod 3000
-# Dont forget to add to source: http://loki.loki-stack:3100
+# After grafana is running, run the following (screen -dmS prometheus ...):
+kubectl -n prometheus port-forward \
+$(kpod -n prometheus --no-headers | grep grafana | awk '{print $1}') 3000
+Dont forget to add to source: http://loki.loki-stack:3100
