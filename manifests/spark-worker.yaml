@@ -30,7 +30,7 @@ spec:
       initContainers:
       - name: wait-for-master
         image: busybox
-        command: ['sh', '-c', 'until ping -c 1 spark-master-svc; do sleep 1; done']
+        command: ['sh', '-c', 'until ping -c 1 spark-master-svc; do sleep 5; done']
       volumes:
       - name: spark-worker-volume
         persistentVolumeClaim:
